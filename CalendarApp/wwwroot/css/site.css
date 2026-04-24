@@ -1,0 +1,86 @@
+html {
+  font-size: 14px;
+  height: 100%;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+body {
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 2. Make the main content area grow to fill space */
+.container {
+    flex: 1 0 auto;
+}
+
+.footer {
+    flex-shrink: 0;
+    position: static !important; /* This kills the 'absolute' causing the clip */
+    width: 100%;
+    padding: 1rem 0;
+}
+
+.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
+  color: var(--bs-secondary-color);
+  text-align: end;
+}
+
+.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
+  text-align: start;
+}
+
+/* Force FullCalendar to respect Bootstrap 5.3 Dark Mode variables */
+[data-bs-theme='dark'] .fc {
+    --fc-page-bg-color: var(--bs-body-bg);
+    --fc-border-color: var(--bs-border-color);
+    --fc-neutral-bg-color: var(--bs-secondary-bg);
+    --fc-list-event-hover-bg-color: var(--bs-secondary-bg);
+    /* Text color */
+    color: var(--bs-body-color);
+}
+
+/* Ensure the calendar headers and grid lines look correct */
+[data-bs-theme='dark'] .fc .fc-toolbar-title,
+[data-bs-theme='dark'] .fc .fc-col-header-cell-cushion,
+[data-bs-theme='dark'] .fc .fc-daygrid-day-number {
+    color: var(--bs-body-color) !important;
+}
+
+[data-bs-theme='dark'] .fc .fc-button-primary {
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
+}
+
+/* --- Comfortable (Default) --- */
+/* No changes needed usually, or add extra padding here */
+
+/* --- Compact View --- */
+[data-calendar-density="compact"] .fc .fc-daygrid-day-frame {
+    min-height: 50px; /* Shorter cells */
+}
+
+[data-calendar-density="compact"] .fc .fc-event {
+    padding: 1px 4px !important;
+    font-size: 0.8rem !important; /* Smaller text */
+    margin-top: 1px !important;
+}
+
+[data-calendar-density="compact"] .fc .fc-col-header-cell-cushion {
+    padding: 2px 0 !important;
+}
+
+[data-calendar-density="compact"] .fc .fc-daygrid-day-number {
+    padding: 2px 4px !important;
+    font-size: 0.85rem;
+}

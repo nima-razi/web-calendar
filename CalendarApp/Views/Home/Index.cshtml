@@ -1,0 +1,41 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="card px-4 py-5 mb-3 bg-body-tertiary text-center">
+    <div class="col-12 col-md-6 mx-auto">
+        <h1 class="display-5 fw-semibold">Web-based calendar</h1>
+        <p class="lead mb-4">
+            A simple, private, and efficient way to manage your time. 
+            Organize your life with our local-first calendar app, 
+            designed to help you stay on top of your events without the need for complex accounts or external databases.
+        </p>
+        <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+            <button id="hero-add-event-btn" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Add Event</button>
+            <a href="@Url.Action("Calendar", "Home")" class="btn btn-primary"><i class="bi bi-calendar3"></i> View Calendar</a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12 col-md-6">
+        <div class="card bg-body-tertiary mb-3">
+            <div class="card-header text-body-secondary"><h5>Upcoming events</h5></div>
+            <div class="card-body" id="upcoming-events-container"></div>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-6">
+        <div class="card bg-body-tertiary mb-3">
+            <div class="card-header text-body-secondary"><h5>Previous events</h5></div>
+            <div class="card-body" id="previous-events-container"></div>
+        </div>
+    </div>
+</div>
+
+<partial name="_EventModal" />
+<partial name="_DeleteEventModal" />
+
+@section Scripts {
+    <script src="~/js/eventsview.js"></script>
+}
