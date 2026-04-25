@@ -1,3 +1,28 @@
+/*:root {
+    --bs-brand: #eae8e8;
+    --bs-brand-rgb: 234, 232, 232; Required for opacity-based utilities 
+    --bs-blue: #3d3d54;
+    --bs-blue-rgb: 61, 61, 84;
+    --bs-blue-dark: #3d3d54;
+    --bs-blue-dark-rgb: 61, 61, 84;
+    --bs-red: #d22e2e;
+    --bs-red-rgb: 210, 46, 46;
+    --bs-grey: #d1c9c9;
+    --bs-grey-rgb: 209, 201, 201;
+}
+
+.btn-primary {
+    background-color: var(--bs-blue) !important;
+}
+
+.btn-primary:hover {
+    background-color: var(--bs-blue-dark) !important;
+}
+
+.bg-brand {
+    background-color: var(--bs-brand) !important;
+}*/
+
 html {
   font-size: 14px;
   height: 100%;
