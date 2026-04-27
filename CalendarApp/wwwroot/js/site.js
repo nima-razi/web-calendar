@@ -66,6 +66,17 @@ function openModalForEdit(index) {
     document.getElementById('event-url').value = event.url || '';
     document.getElementById('event-details').value = event.extendedProps?.details || '';
 
+    // Trigger the constraints check so the end-time/date min values are set correctly
+    const startDateInput = document.getElementById('start-date');
+    const startTimeInput = document.getElementById('start-time');
+    const endDateInput = document.getElementById('end-date');
+    const endTimeInput = document.getElementById('end-time');
+
+    endDateInput.min = startDateInput.value;
+    if (startDateInput.value === endDateInput.value) {
+        endTimeInput.min = startTimeInput.value;
+    }
+
     // Update Modal UI
     document.querySelector('.modal-title').innerText = "Edit Event";
     $("#myModal").modal("show");
@@ -104,6 +115,8 @@ if (activeDensityRadio) activeDensityRadio.checked = true;
 // 2. Listen for changes
 densityRadios.forEach(radio => {
     radio.addEventListener('change', (e) => {
+        const uniqueEvents = Array.from(new Set(mergedEvents.map(JSON.stringify))).map(JSON.parse);
+        localStorage.setItem('calendar_events_data', JSON.stringify(uniqueEvents));
         localStorage.setItem('calendarDensity', e.target.value);
         // Apply it immediately if we are on the calendar page
         applyDensity(e.target.value);
@@ -120,6 +133,22 @@ applyDensity(currentDensity);
 
 document.addEventListener('DOMContentLoaded', () => {
     const importInput = document.getElementById('input-import-json');
+    const modalEl = document.getElementById('importResultModal');
+
+    // Helper to show the modal with a specific message
+    const showImportFeedback = (message, showReload = false) => {
+        document.getElementById('import-modal-body-text').innerText = message;
+        const reloadBtn = document.getElementById('import-reload-btn');
+
+        if (showReload) {
+            reloadBtn.style.display = 'block';
+        } else {
+            reloadBtn.style.display = 'none';
+        }
+
+        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        modal.show();
+    };
 
     if (importInput) {
         importInput.addEventListener('change', function (e) {
@@ -128,34 +157,67 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const reader = new FileReader();
 
-            // Inside your import input listener
             reader.onload = function (e) {
                 try {
-                    const parsedData = JSON.parse(e.target.result);
+                    const importedData = JSON.parse(e.target.result);
 
-                    // Check if this is a "Full Backup" object
-                    if (parsedData.events && parsedData.density && parsedData.theme) {
-                        localStorage.setItem('calendar_events_data', JSON.stringify(parsedData.events));
-                        localStorage.setItem('calendarDensity', parsedData.density);
-                        localStorage.setItem('themePreference', parsedData.theme);
-                        alert("Full settings and events restored!");
-                    }
-                    // Or if it's just a legacy list of events
-                    else if (Array.isArray(parsedData)) {
-                        localStorage.setItem('calendar_events_data', JSON.stringify(parsedData));
-                        alert("Events imported successfully!");
-                    }
+                    // 1. Get existing data
+                    const existingEvents = JSON.parse(localStorage.getItem('calendar_events_data') || '[]');
 
-                    window.location.reload();
+                    // 2. Prepare new events (handling both single object or array)
+                    const newEvents = Array.isArray(importedData) ? importedData : (importedData.events || []);
+
+                    // 3. Merge: Combine both arrays
+                    const mergedEvents = [...existingEvents, ...newEvents];
+
+                    // 4. Save the merged result
+                    localStorage.setItem('calendar_events_data', JSON.stringify(mergedEvents));
+
+                    // Handle settings (Density/Theme)
+                    if (importedData.density) localStorage.setItem('calendarDensity', importedData.density);
+                    if (importedData.theme) localStorage.setItem('themePreference', importedData.theme);
+
+                    showImportFeedback("Events merged successfully! Please refresh to apply changes.", true);
+                    importInput.value = '';
+
                 } catch (err) {
-                    alert("Invalid JSON file.");
+                    showImportFeedback("Invalid JSON file.");
                 }
             };
 
-            // Start reading the file
             reader.readAsText(file);
         });
     }
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    const startDateInput = document.getElementById('start-date');
+    const startTimeInput = document.getElementById('start-time');
+    const endDateInput = document.getElementById('end-date');
+    const endTimeInput = document.getElementById('end-time');
+
+    function syncConstraints() {
+        // 1. End date cannot be before start date
+        endDateInput.min = startDateInput.value;
+
+        // 2. If start and end dates are the same, end time must be after start time
+        if (startDateInput.value === endDateInput.value) {
+            endTimeInput.min = startTimeInput.value;
+
+            // If current end time is now invalid (earlier than new start time), reset it
+            if (endTimeInput.value < startTimeInput.value && endTimeInput.value !== "") {
+                endTimeInput.value = startTimeInput.value;
+            }
+        } else {
+            // If dates are different, there is no time restriction
+            endTimeInput.min = "";
+        }
+    }
+
+    // Run sync whenever any start/end field changes
+    [startDateInput, startTimeInput, endDateInput].forEach(input => {
+        input.addEventListener('change', syncConstraints);
+    });
 });
 
 document.addEventListener('DOMContentLoaded', () => {
