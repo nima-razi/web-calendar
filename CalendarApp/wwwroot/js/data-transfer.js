@@ -1,5 +1,4 @@
 ﻿document.addEventListener('DOMContentLoaded', () => {
-    // 1. Helper Function: Needs to be in the outer scope
     const downloadFile = (content, fileName, contentType) => {
         const file = new Blob([content], { type: contentType });
         const url = URL.createObjectURL(file);
@@ -14,7 +13,6 @@
         }, 100);
     };
 
-    // 2. Import Logic
     const importInput = document.getElementById('input-import-json');
     if (importInput) {
         importInput.onchange = function (e) {
@@ -25,25 +23,17 @@
             reader.onload = (event) => {
                 try {
                     const importedData = JSON.parse(event.target.result);
-
-                    // 1. Sanitize and Handle Events
-                    // Extract events from the import (handle array or object wrapper)
                     const rawEvents = Array.isArray(importedData) ? importedData : (importedData.events || []);
-
-                    // Ensure every event has a UID. If it's an old file without UIDs, generate them.
                     const sanitizedEvents = rawEvents.map(ev => ({
                         ...ev,
                         uid: ev.uid || generateUUID()
                     }));
 
-                    // Merge with existing events
                     const existingEvents = EventStorage.getAll();
                     const mergedEvents = [...existingEvents, ...sanitizedEvents];
 
-                    // Save the clean, unique set
                     EventStorage._persist(mergedEvents);
 
-                    // 2. Handle Settings
                     if (importedData.density) {
                         localStorage.setItem('calendarDensity', importedData.density);
                         if (typeof applyDensity === 'function') applyDensity(importedData.density);
@@ -55,7 +45,7 @@
                     }
 
                     alert("Import successful! Your events have been updated.");
-                    importInput.value = ''; // Reset input
+                    importInput.value = '';
                 } catch (err) {
                     console.error("Import Error:", err);
                     alert("Invalid JSON file. Please check the format.");
@@ -65,13 +55,11 @@
         };
     }
 
-    // 3. Delete All Logic
     const confirmClear = document.getElementById('confirm-delete-btn');
     if (confirmClear) {
         confirmClear.onclick = () => { localStorage.clear(); window.location.reload(); };
     }
 
-    // 4. Export Logic (The missing part)
     const btnJson = document.getElementById('btn-export-json');
     const btnCsv = document.getElementById('btn-export-csv');
 

@@ -7,13 +7,11 @@ function applyDensity(density) {
     document.documentElement.setAttribute('data-calendar-density', density);
 }
 
-// Init
 const currentTheme = localStorage.getItem('themePreference') || 'system';
 const currentDensity = localStorage.getItem('calendarDensity') || 'comfortable';
 applyTheme(currentTheme);
 applyDensity(currentDensity);
 
-// Listeners for Preferences Page
 document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('input[name="inlineRadioOptions"]').forEach(r => {
         if (r.value === currentTheme) r.checked = true;

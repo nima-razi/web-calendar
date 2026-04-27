@@ -1,13 +1,6 @@
-﻿/**
- * index-dashboard.js
- * Strictly handles the UI rendering for the Index/Dashboard page.
- */
-
-document.addEventListener('DOMContentLoaded', function () {
-    // Initial render
+﻿document.addEventListener('DOMContentLoaded', function () {
     renderDashboard();
 
-    // Index-Specific: Hero "Add Event" button
     const heroBtn = document.getElementById('hero-add-event-btn');
     if (heroBtn) {
         heroBtn.addEventListener('click', function () {
@@ -28,16 +21,13 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Index-Specific: Confirm Delete inside the Delete Modal
     const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
     if (confirmDeleteBtn) {
         confirmDeleteBtn.addEventListener('click', function () {
             const index = document.getElementById('delete-index-field').value;
 
-            // Use the shared storage logic
             EventStorage.remove(index);
 
-            // Close modal and refresh UI
             const modalEl = document.getElementById('deleteModal');
             const modal = bootstrap.Modal.getInstance(modalEl);
             if (modal) modal.hide();
@@ -47,7 +37,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 
-// Make this global so event-core.js can call it after a form save
 window.renderDashboard = function () {
     const events = EventStorage.getAll();
     const now = new Date();
@@ -63,7 +52,6 @@ window.renderDashboard = function () {
         const eventDate = new Date(event.start);
         const cardHtml = createEventCard(event, event.uid);
 
-        // Logic to split between upcoming and past
         if (eventDate >= now) {
             upcomingContainer.innerHTML += cardHtml;
         } else {
@@ -71,10 +59,8 @@ window.renderDashboard = function () {
         }
     });
 
-    // Re-attach listeners to the new HTML buttons
     attachCardListeners();
 
-    // Handle empty states
     if (upcomingContainer.innerHTML === '') upcomingContainer.innerHTML = '<p class="text-muted">No upcoming events.</p>';
     if (previousContainer.innerHTML === '') previousContainer.innerHTML = '<p class="text-muted">No past events.</p>';
 };
@@ -114,16 +100,13 @@ function createEventCard(event, index) {
 }
 
 function attachCardListeners() {
-    // Edit trigger
     document.querySelectorAll('[data-role="edit-trigger"]').forEach(btn => {
         btn.onclick = function () {
             const index = this.getAttribute('data-uid');
-            // This function is defined in event-core.js
             openModalForEdit(index);
         };
     });
 
-    // Delete trigger (opens the delete confirmation modal)
     document.querySelectorAll('[data-role="delete-trigger"]').forEach(btn => {
         btn.onclick = function () {
             const index = this.closest('.event-item').querySelector('[data-role="edit-trigger"]').getAttribute('data-uid');

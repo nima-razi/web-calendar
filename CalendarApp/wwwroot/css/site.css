@@ -1,28 +1,3 @@
-/*:root {
-    --bs-brand: #eae8e8;
-    --bs-brand-rgb: 234, 232, 232; Required for opacity-based utilities 
-    --bs-blue: #3d3d54;
-    --bs-blue-rgb: 61, 61, 84;
-    --bs-blue-dark: #3d3d54;
-    --bs-blue-dark-rgb: 61, 61, 84;
-    --bs-red: #d22e2e;
-    --bs-red-rgb: 210, 46, 46;
-    --bs-grey: #d1c9c9;
-    --bs-grey-rgb: 209, 201, 201;
-}
-
-.btn-primary {
-    background-color: var(--bs-blue) !important;
-}
-
-.btn-primary:hover {
-    background-color: var(--bs-blue-dark) !important;
-}
-
-.bg-brand {
-    background-color: var(--bs-brand) !important;
-}*/
-
 html {
   font-size: 14px;
   height: 100%;
@@ -44,14 +19,13 @@ body {
     flex-direction: column;
 }
 
-/* 2. Make the main content area grow to fill space */
 .container {
     flex: 1 0 auto;
 }
 
 .footer {
     flex-shrink: 0;
-    position: static !important; /* This kills the 'absolute' causing the clip */
+    position: static !important;
     width: 100%;
     padding: 1rem 0;
 }
@@ -65,17 +39,14 @@ body {
   text-align: start;
 }
 
-/* Force FullCalendar to respect Bootstrap 5.3 Dark Mode variables */
 [data-bs-theme='dark'] .fc {
     --fc-page-bg-color: var(--bs-body-bg);
     --fc-border-color: var(--bs-border-color);
     --fc-neutral-bg-color: var(--bs-secondary-bg);
     --fc-list-event-hover-bg-color: var(--bs-secondary-bg);
-    /* Text color */
     color: var(--bs-body-color);
 }
 
-/* Ensure the calendar headers and grid lines look correct */
 [data-bs-theme='dark'] .fc .fc-toolbar-title,
 [data-bs-theme='dark'] .fc .fc-col-header-cell-cushion,
 [data-bs-theme='dark'] .fc .fc-daygrid-day-number {
@@ -87,17 +58,12 @@ body {
     border-color: var(--bs-primary);
 }
 
-/* --- Comfortable (Default) --- */
-/* No changes needed usually, or add extra padding here */
-
-/* --- Compact View --- */
 [data-calendar-density="compact"] .fc .fc-daygrid-day-frame {
-    min-height: 50px; /* Shorter cells */
-}
+    min-height: 50px; 
 
 [data-calendar-density="compact"] .fc .fc-event {
     padding: 1px 4px !important;
-    font-size: 0.8rem !important; /* Smaller text */
+    font-size: 0.8rem !important; 
     margin-top: 1px !important;
 }
 
