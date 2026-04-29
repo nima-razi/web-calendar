@@ -1,16 +1,11 @@
-﻿<div class="modal fade" id="importResultModal" tabindex="-1" aria-labelledby="importResultModalLabel" aria-hidden="true">
+﻿<div class="modal fade" id="importResultModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="importResultModalLabel">Import Data</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p id="import-modal-body-text"></p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="import-reload-btn" style="display: none;" onclick="window.location.reload()">Refresh Now</button>
+        <div class="modal-content text-center">
+            <div class="modal-body p-4">
+                <i class="bi bi-check-circle-fill text-success" style="font-size: 3rem;"></i>
+                <h3 class="mt-3">Import Successful!</h3>
+                <p>We successfully added <strong id="import-count">0</strong> events to your calendar.</p>
+                <button type="button" class="btn btn-primary w-100" data-bs-dismiss="modal">Great!</button>
             </div>
         </div>
     </div>

@@ -24,9 +24,8 @@
     const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
     if (confirmDeleteBtn) {
         confirmDeleteBtn.addEventListener('click', function () {
-            const index = document.getElementById('delete-index-field').value;
-
-            EventStorage.remove(index);
+            const uid = document.getElementById('delete-index-field').value;
+            EventStorage.remove(uid);
 
             const modalEl = document.getElementById('deleteModal');
             const modal = bootstrap.Modal.getInstance(modalEl);
@@ -40,29 +39,47 @@
 window.renderDashboard = function () {
     const events = EventStorage.getAll();
     const now = new Date();
+
+    // 1. Get all three containers
     const upcomingContainer = document.getElementById('upcoming-events-container');
+    const ongoingContainer = document.getElementById('ongoing-events-container');
     const previousContainer = document.getElementById('previous-events-container');
 
-    if (!upcomingContainer || !previousContainer) return;
+    if (!upcomingContainer || !ongoingContainer || !previousContainer) return;
 
+    // Clear all containers
     upcomingContainer.innerHTML = '';
+    ongoingContainer.innerHTML = '';
     previousContainer.innerHTML = '';
 
-    events.forEach((event, index) => {
-        const eventDate = new Date(event.start);
+    events.forEach((event) => {
+        const startDate = new Date(event.start);
+        const endDate = new Date(event.end);
         const cardHtml = createEventCard(event, event.uid);
 
-        if (eventDate >= now) {
+        /**
+         * 2. Logic for Three Categories:
+         * - Upcoming: Start date is in the future.
+         * - Ongoing: Start date has passed, but end date is still in the future.
+         * - Previous: End date has already passed.
+         */
+        if (startDate > now) {
             upcomingContainer.innerHTML += cardHtml;
-        } else {
+        }
+        else if (startDate <= now && endDate >= now) {
+            ongoingContainer.innerHTML += cardHtml;
+        }
+        else {
             previousContainer.innerHTML += cardHtml;
         }
     });
 
     attachCardListeners();
 
-    if (upcomingContainer.innerHTML === '') upcomingContainer.innerHTML = '<p class="text-muted">No upcoming events.</p>';
-    if (previousContainer.innerHTML === '') previousContainer.innerHTML = '<p class="text-muted">No past events.</p>';
+    // 3. Handle empty states
+    if (upcomingContainer.innerHTML === '') upcomingContainer.innerHTML = '<p class="text-muted small">No upcoming events.</p>';
+    if (ongoingContainer.innerHTML === '') ongoingContainer.innerHTML = '<p class="text-muted small">No events currently in progress.</p>';
+    if (previousContainer.innerHTML === '') previousContainer.innerHTML = '<p class="text-muted small">No past events.</p>';
 };
 
 function createEventCard(event, index) {
@@ -81,19 +98,18 @@ function createEventCard(event, index) {
     return `
         <div class="event-item mb-3">
             <h5 class="card-title">${event.title}</h5>
-            <h6 class="card-subtitle mb-2 text-body-secondary">
-                <i class="bi bi-calendar3"></i> ${start.d} - ${end.d} <span class="mx-1">|</span> <i class="bi bi-clock"></i> ${start.t} - ${end.t}
-            </h6>
-            <p class="card-text text-truncate" style="max-width: 100%;">
-                ${event.extendedProps?.details || 'No details provided.'}
-            </p>
+            <div class="d-flex flex-wrap text-body-secondary small">
+                <div class="me-3 mb-1 d-flex align-items-center">
+                    <i class="bi bi-calendar-week-fill me-1"></i><span>${start.d} - ${end.d}</span>
+                </div>
+                 <div class="mb-1 d-flex align-items-center">
+                    <i class="bi bi-clock-fill me-1"></i><span>${start.t} - ${end.t}</span>
+                 </div>
+            </div>
+            <p class="card-text text-truncate">${event.extendedProps?.details || 'No details provided.'}</p>
             <div class="btn-group" role="group">
-                <button type="button" class="btn btn-primary" data-role="edit-trigger" data-uid="${event.uid}">
-                    <i class="bi bi-pencil-fill"></i> Edit
-                </button>
-                <button type="button" class="btn btn-sm btn-danger" data-role="delete-trigger">
-                    <i class="bi bi-trash-fill"></i> Delete
-                </button>
+                <button type="button" class="btn btn-primary" data-role="edit-trigger" data-uid="${event.uid}"><i class="bi bi-pencil-fill"></i> Edit</button>
+                <button type="button" class="btn btn-danger" data-role="delete-trigger"><i class="bi bi-trash-fill"></i> Delete</button>
             </div>
         </div>
     `;

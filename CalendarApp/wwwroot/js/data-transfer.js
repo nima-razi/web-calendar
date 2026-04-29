@@ -14,41 +14,79 @@
     };
 
     const importInput = document.getElementById('input-import-json');
+    // Inside data-transfer.js
     if (importInput) {
         importInput.onchange = function (e) {
             const file = e.target.files[0];
-            if (!file) return;
+            if (!file) return; // User cancelled
 
             const reader = new FileReader();
             reader.onload = (event) => {
                 try {
-                    const importedData = JSON.parse(event.target.result);
-                    const rawEvents = Array.isArray(importedData) ? importedData : (importedData.events || []);
-                    const sanitizedEvents = rawEvents.map(ev => ({
-                        ...ev,
-                        uid: ev.uid || generateUUID()
-                    }));
+                    let eventsToProcess = [];
 
-                    const existingEvents = EventStorage.getAll();
-                    const mergedEvents = [...existingEvents, ...sanitizedEvents];
-
-                    EventStorage._persist(mergedEvents);
-
-                    if (importedData.density) {
-                        localStorage.setItem('calendarDensity', importedData.density);
-                        if (typeof applyDensity === 'function') applyDensity(importedData.density);
+                    if (file.name.endsWith('.json')) {
+                        let rawData = JSON.parse(event.target.result);
+                        eventsToProcess = Array.isArray(rawData) ? rawData : (rawData.events || []);
+                    } else if (file.name.endsWith('.csv')) {
+                        eventsToProcess = ExternalImportParsers.parseCSV(event.target.result);
                     }
 
-                    if (importedData.theme) {
-                        localStorage.setItem('themePreference', importedData.theme);
-                        if (typeof applyTheme === 'function') applyTheme(importedData.theme);
+                    const finalized = eventsToProcess.map(ev => {
+                        const title = ev.title || ev.summary || ev.subject || "Untitled Event";
+                        const start = ev.start || ev.start_time || ev.startDate;
+                        const end = ev.end || ev.end_time || ev.endDate;
+                        const details = ev.extendedProps?.details || ev.description || ev.notes || "";
+
+                        return {
+                            uid: ev.uid || generateUUID(),
+                            title: title,
+                            start: start,
+                            end: end,
+                            url: ev.url || "",
+                            extendedProps: { details: details }
+                        };
+                    });
+
+                    const validEvents = finalized.filter(ev => ev.start && ev.start !== "undefinedTundefined");
+
+                    if (validEvents.length === 0) {
+                        alert("Could not find valid dates or titles in the file.");
+                        return;
                     }
 
-                    alert("Import successful! Your events have been updated.");
+                    // Save data
+                    const existing = EventStorage.getAll();
+                    EventStorage._persist([...existing, ...validEvents]);
+
+                    // --- NEW MODAL LOGIC ---
+
+                    // 1. Find the modal element
+                    const modalEl = document.getElementById('importResultModal'); // Ensure this ID matches your _ImportModal.cshtml
+                    if (modalEl) {
+                        // 2. Optional: Update a span inside the modal to show the count
+                        const countSpan = modalEl.querySelector('#import-count');
+                        if (countSpan) countSpan.innerText = validEvents.length;
+
+                        // 3. Initialize and Show the Bootstrap Modal
+                        const bsImportModal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                        bsImportModal.show();
+
+                        // 4. Reload the page ONLY after the user closes the modal
+                        modalEl.addEventListener('hidden.bs.modal', function () {
+                            window.location.reload();
+                        }, { once: true }); // 'once' ensures it doesn't stack listeners
+                    } else {
+                        // Fallback if modal ID is wrong
+                        alert(`Successfully imported ${validEvents.length} events!`);
+                        window.location.reload();
+                    }
+
                     importInput.value = '';
+
                 } catch (err) {
                     console.error("Import Error:", err);
-                    alert("Invalid JSON file. Please check the format.");
+                    alert("Failed to parse file. Ensure the format is correct.");
                 }
             };
             reader.readAsText(file);
@@ -68,7 +106,6 @@
             e.preventDefault();
             const backupBundle = {
                 events: EventStorage.getAll(),
-                density: localStorage.getItem('calendarDensity') || 'comfortable',
                 theme: localStorage.getItem('themePreference') || 'system'
             };
             downloadFile(JSON.stringify(backupBundle, null, 2), 'calendar-full-backup.json', 'application/json');
@@ -89,4 +126,35 @@
             downloadFile(csvRows.join('\r\n'), 'calendar-events.csv', 'text/csv');
         });
     }
+
+    const ExternalImportParsers = {
+        // Parse CSV from Google/Outlook
+        parseCSV: (csvText) => {
+            const lines = csvText.split('\n');
+            const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+
+            return lines.slice(1).filter(line => line.trim()).map(line => {
+                const values = line.split(',').map(v => v.replace(/"/g, '').trim());
+
+                // Attempt to find data by common column names
+                const getVal = (possibleNames) => {
+                    const colIndex = headers.findIndex(h => possibleNames.includes(h));
+                    return colIndex !== -1 ? values[colIndex] : null;
+                };
+
+                const title = getVal(['subject', 'title', 'event', 'summary']);
+                const startDate = getVal(['start date', 'start_date']);
+                const startTime = getVal(['start time', 'start_time']) || '00:00';
+                const endDate = getVal(['end date', 'end_date']);
+                const endTime = getVal(['end time', 'end_time']) || '00:00';
+
+                return {
+                    title: title || "Untitled Event",
+                    start: `${startDate}T${startTime}`,
+                    end: `${endDate}T${endTime}`,
+                    extendedProps: { details: getVal(['description', 'details', 'notes']) || '' }
+                };
+            });
+        }
+    };
 });

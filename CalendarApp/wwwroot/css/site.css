@@ -57,21 +57,3 @@ body {
     background-color: var(--bs-primary);
     border-color: var(--bs-primary);
 }
-
-[data-calendar-density="compact"] .fc .fc-daygrid-day-frame {
-    min-height: 50px; 
-
-[data-calendar-density="compact"] .fc .fc-event {
-    padding: 1px 4px !important;
-    font-size: 0.8rem !important; 
-    margin-top: 1px !important;
-}
-
-[data-calendar-density="compact"] .fc .fc-col-header-cell-cushion {
-    padding: 2px 0 !important;
-}
-
-[data-calendar-density="compact"] .fc .fc-daygrid-day-number {
-    padding: 2px 4px !important;
-    font-size: 0.85rem;
-}

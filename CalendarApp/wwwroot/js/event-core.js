@@ -74,16 +74,37 @@ document.addEventListener('DOMContentLoaded', () => {
 
     eventForm.addEventListener('submit', function (e) {
         e.preventDefault();
+
+        // 1. Basic Bootstrap validity check
         if (!eventForm.checkValidity()) {
             eventForm.classList.add('was-validated');
             return;
         }
 
+        // 2. Extract values for comparison
+        const startDateVal = document.getElementById('start-date').value;
+        const startTimeVal = document.getElementById('start-time').value || "00:00";
+        const endDateVal = document.getElementById('end-date').value;
+        const endTimeVal = document.getElementById('end-time').value || "00:00";
+
+        const startDateTime = new Date(`${startDateVal}T${startTimeVal}`);
+        const endDateTime = new Date(`${endDateVal}T${endTimeVal}`);
+
+        // 3. LOGIC CHECK: Is the end before the start?
+        if (endDateTime <= startDateTime) {
+            alert("The end time must be after the start time. Please check your dates.");
+
+            // Visual feedback: highlight the end date field
+            document.getElementById('end-date').classList.add('is-invalid');
+            return;
+        }
+
+        // 4. Data is valid, proceed with saving
         const uid = document.getElementById('edit-uid').value;
         const eventData = {
             title: document.getElementById('event-title').value,
-            start: `${document.getElementById('start-date').value}T${document.getElementById('start-time').value}`,
-            end: `${document.getElementById('end-date').value}T${document.getElementById('end-time').value}`,
+            start: `${startDateVal}T${startTimeVal}`,
+            end: `${endDateVal}T${endTimeVal}`,
             url: document.getElementById('event-url').value,
             extendedProps: { details: document.getElementById('event-details').value }
         };
@@ -94,11 +115,11 @@ document.addEventListener('DOMContentLoaded', () => {
             EventStorage.update(uid, eventData);
         }
 
-        $("#myModal").modal("hide");
+        // Hide modal and refresh
+        const modalEl = document.getElementById('myModal');
+        bootstrap.Modal.getOrCreateInstance(modalEl).hide();
 
         if (typeof renderDashboard === "function") renderDashboard();
-        if (window.myFullCalendar) {
-            window.myFullCalendar.refetchEvents(); 
-        }
+        if (window.myFullCalendar) window.myFullCalendar.refetchEvents();
     });
 });
