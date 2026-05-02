@@ -107,9 +107,17 @@ function createEventCard(event, index) {
                  </div>
             </div>
             <p class="card-text text-truncate">${event.extendedProps?.details || 'No details provided.'}</p>
-            <div class="btn-group" role="group">
-                <button type="button" class="btn btn-primary" data-role="edit-trigger" data-uid="${event.uid}"><i class="bi bi-pencil-fill"></i> Edit</button>
-                <button type="button" class="btn btn-danger" data-role="delete-trigger"><i class="bi bi-trash-fill"></i> Delete</button>
+    
+            <!-- Wrapper to align buttons to the end -->
+            <div class="d-flex justify-content-end">
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-primary" data-role="edit-trigger" data-uid="${event.uid}">
+                        <i class="bi bi-pencil-fill"></i> Edit
+                    </button>
+                    <button type="button" class="btn btn-danger" data-role="delete-trigger">
+                        <i class="bi bi-trash-fill"></i> Delete
+                    </button>
+                </div>
             </div>
         </div>
     `;
