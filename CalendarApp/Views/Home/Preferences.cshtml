@@ -28,7 +28,14 @@
     </div>
 
     <h6 class="text-body-secondary fw-bold mb-1">Clear all data</h6>
-    <button type="submit" data-bs-toggle="modal" data-bs-target="#deleteDataModal" class="btn btn-danger mb-4"><i class="bi bi-trash3-fill"></i> Delete</button>
+    <button type="submit" data-bs-toggle="modal" data-bs-target="#deleteDataModal" class="btn btn-danger mb-4">
+        <i class="bi bi-trash3-fill"></i> Delete
+    </button>
+
+    @* <h6 class="text-body-secondary fw-bold mb-1">System</h6>
+    <button type="button" id="btn-test-notifications" class="btn btn-warning mb-4">
+        <i class="bi bi-bell-fill"></i> Test Notifications
+    </button> *@
 </div>
 
 <partial name="_DeleteData" />
@@ -36,4 +43,11 @@
 
 @section Scripts {
     <script src="~/js/data-transfer.js" asp-append-version="true"></script>
+
+    <script>
+        document.getElementById('btn-test-notifications').onclick = () => {
+            AppNotifications.show("Success!", "Notifications are correctly configured.");
+        };
+        
+    </script>
 }
