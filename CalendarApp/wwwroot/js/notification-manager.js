@@ -43,7 +43,7 @@
             // Trigger if the event started in the last 60 seconds or is about to start
             if (timeDiffMins <= 0 && timeDiffMins > -1) {
                 if (!this._startedNotified.has(event.uid)) {
-                    this.show(`🚀 Starting Now: ${event.title}`, "Click to view event details.");
+                    this.show(`Event Starting: ${event.title}`, "Click to view event details.");
                     this._startedNotified.add(event.uid);
 
                     // Cleanup: if we alerted "started", we don't need the "upcoming" flag anymore
@@ -54,7 +54,7 @@
             // 2. "UPCOMING" WARNING (e.g., 15 minutes before)
             else if (timeDiffMins > 0 && timeDiffMins <= 15) {
                 if (!this._upcomingNotified.has(event.uid)) {
-                    this.show(`🔔 Upcoming: ${event.title}`, `Starting in ${Math.round(timeDiffMins)} minutes.`);
+                    this.show(`Upcoming event: ${event.title}`, `Starting in ${Math.round(timeDiffMins)} minutes.`);
                     this._upcomingNotified.add(event.uid);
                 }
             }
@@ -70,12 +70,17 @@
     },
 
     show: function (title, body) {
-        if (Notification.permission === "granted") {
+        // CHECK THE USER PREFERENCE FIRST
+        const isEnabled = localStorage.getItem('notificationsEnabled') !== 'false';
+
+        if (isEnabled && Notification.permission === "granted") {
             new Notification(title, {
                 body: body,
-                icon: '/favicon.ico',
-                tag: 'calendar-event' // Replaces previous notification so they don't stack up too high
+                icon: '~/images/calendar.ico',
+                tag: 'calendar-event'
             });
+        } else {
+            console.log("Notification blocked by user setting or browser permission.");
         }
     }
 };
