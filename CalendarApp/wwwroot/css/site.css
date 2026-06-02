@@ -23,6 +23,14 @@ body {
     flex: 1 0 auto;
 }
 
+.card {
+    border: 0 !important; 
+}
+
+.card-header {
+    border: 0 !important;
+}
+
 .footer {
     flex-shrink: 0;
     position: static !important;
